@@ -6,12 +6,15 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct SwiftDataInterApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            IntroView()
+            // Model Containeer 생성 및 전달 -> IntroView에서 SampleModel에 해당하는 SwiftData를 생성하고 전달(자동으로)
+                .modelContainer(for: SampleModel.self)
         }
     }
 }
