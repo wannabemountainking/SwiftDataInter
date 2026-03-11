@@ -10,6 +10,7 @@ import SwiftData
 
 struct TodoMainView: View {
     
+    // MARK: - Property
     @Environment(\.modelContext) private var modelContext
     @Query private var tasks: [TodoModel]
     
@@ -17,21 +18,26 @@ struct TodoMainView: View {
     @State private var taskTodoDelete: TodoModel?
     @State private var isNewTask: Bool  = false
     
+    // MARK: - Sort, Filter : @Query 안에서도 할 수 있지만 지저분해서 이미 가져온 Query내용을 정렬, 필터함
+    
+    
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             VStack {
                 if tasks.isEmpty {
-                    Spacer()
-                    Text("새로운 할 일을 추가해 주세요 ☝️")
-                        .font(.largeTitle)
-                        .multilineTextAlignment(.center)
-                        .padding()
-                    Spacer()
+                    // ContentUnAvailable을 써서 예쁘게
+                    ContentUnavailableView(
+                        "새로운 할 일을 추가해 주세요 ☝️",
+                        systemImage: "rectangle.and.pencil.and.ellipsis",
+                        description: Text("위의 plus 버튼을 눌러주세요")
+                    )
                 } else {
                     List {
                         ForEach(tasks) { task in
                             NavigationLink {
                                 //destination
+                                AddUpdateTaskView(task: task)
                             } label: {
                                 TaskRowView(task: task)
                                 // delete swipe action
@@ -81,6 +87,11 @@ struct TodoMainView: View {
                     }
                 }
             } //:TOOLBAR
+            .sheet(isPresented: $isNewTask, content: {
+                NavigationStack {
+                    AddUpdateTaskView()
+                }
+            })
             .navigationTitle("Todo List")
             .alert("정말로 삭제 하시겠습니까?", isPresented: $showAlert) {
                 Button(role: .destructive) {

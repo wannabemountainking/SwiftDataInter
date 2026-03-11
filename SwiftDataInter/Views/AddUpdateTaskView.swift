@@ -81,9 +81,57 @@ struct AddUpdateTaskView: View {
                 }
                 
                 // 4. 저장, 취소 버튼
-                
-            }
+                HStack(spacing: 10) {
+                    Button(action: {
+                        // A. ADD / UPDATE 버튼
+                        // 이 버튼은 add 상황일때는 newTask 객체 생성해서 modelContext에 넣어주고
+                        // update 상황일 때는 기존 task의 해당 속성에 수정된 데이터 값을 넣어준다.
+                        if isNewTask {
+                            let newTask = TodoModel(taskName: taskName, isImportant: isImportant)
+                            newTask.dueDate = hasDueDate ? self.dueDate : nil
+                            modelContext.insert(newTask)
+                        } else {
+                            task?.taskName = self.taskName
+                            task?.isImportant = self.isImportant
+                            task?.dueDate = hasDueDate ? self.dueDate : nil
+                        }
+                        
+                        dismiss()
+                    }, label: {
+                        Text(isNewTask ? "ADD" : "UPDATE")
+                            .font(.title2.bold())
+                            .frame(height: 30)
+                            .frame(maxWidth: .infinity)
+                    })
+                    .buttonStyle(.borderedProminent)
+                    .disabled(taskName.isEmpty) // taskName이 비어 있으면 버튼 비활성화
+                    
+                    // B. CANCEL 버튼
+                    Button(action: {
+                        dismiss()
+                    }, label: {
+                        Text("CANCLE")
+                            .font(.title2.bold())
+                            .frame(height: 30)
+                            .frame(maxWidth: .infinity)
+                    })
+                    .buttonStyle(.borderedProminent)
+                    .tint(.red)
+                } //:HSTACK
+            } //:VSTACK
         }//: FORM
+        .task { // task가 있는 경우, View가 보이기 전에 SwiftData가 저장된 것을 View에 나타낸다.
+            if let task {
+                self.taskName = task.taskName
+                self.isImportant = task.isImportant
+                self.hasDueDate = task.dueDate != nil
+                self.dueDate = task.dueDate ?? Date()
+            } else {
+                self.isImportant = task?.isImportant ?? false
+            }
+        }
+        .navigationTitle(isNewTask ? "ADD TODO" : "UPDATE TODO")
+        .navigationBarTitleDisplayMode(.inline)
     }//:body
 }
 
