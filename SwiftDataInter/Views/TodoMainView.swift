@@ -19,7 +19,10 @@ struct TodoMainView: View {
     @State private var isNewTask: Bool  = false
     
     // MARK: - Sort, Filter : @Query 안에서도 할 수 있지만 지저분해서 이미 가져온 Query내용을 정렬, 필터함
-    
+    @State private var orderAscending: Bool = true
+    private var sortedTodos: [TodoModel] {
+        tasks.sorted { orderAscending ? $0.taskName < $1.taskName : $0.taskName > $1.taskName }
+    }
     
     // MARK: - Body
     var body: some View {
@@ -34,7 +37,7 @@ struct TodoMainView: View {
                     )
                 } else {
                     List {
-                        ForEach(tasks) { task in
+                        ForEach(sortedTodos) { task in
                             NavigationLink {
                                 //destination
                                 AddUpdateTaskView(task: task)
@@ -74,7 +77,21 @@ struct TodoMainView: View {
                 }//:CONDITIONAL
             } //:VSTACK
             .toolbar {
-                // Trailing Icon
+                // Trailing Icons
+                // MARK: - Sort Button
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        //action
+                        orderAscending.toggle()
+                    } label: {
+                        Image(systemName: "arrow.up.arrow.down.circle")
+                            .font(.title2)
+                            .foregroundStyle(.green)
+                            .symbolVariant(orderAscending ? .fill : .none)
+                    }
+
+                }
+                // MARK: - Add Button
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         //Action
