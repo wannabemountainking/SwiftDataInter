@@ -47,12 +47,12 @@ struct TodoMainView: View {
                                     }
                                 // Update completed Task action
                                     .swipeActions(edge: .leading, allowsFullSwipe: false) {
-                                        Button(Button {
+                                        Button {
                                             // Action
                                             task.isComplete.toggle()
                                         } label: {
                                             Image(systemName: task.isComplete ? "arrow.uturn.backward.square" : "checkmark.square")
-                                        })
+                                        }
                                         .tint(task.isComplete ? .green : .blue)
                                     }
                             } //:NavLink
