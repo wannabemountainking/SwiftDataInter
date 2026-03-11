@@ -19,9 +19,25 @@ struct TodoMainView: View {
     @State private var isNewTask: Bool  = false
     
     // MARK: - Sort, Filter : @Query 안에서도 할 수 있지만 지저분해서 이미 가져온 Query내용을 정렬, 필터함
+    // 1. Sort
     @State private var orderAscending: Bool = true
     private var sortedTodos: [TodoModel] {
         tasks.sorted { orderAscending ? $0.taskName < $1.taskName : $0.taskName > $1.taskName }
+    }
+    // 2. Filter
+    @State private var filterOn: Bool = false
+    private var filteredTodos: [TodoModel] {
+        // filterOn 일때만 important 한것 출력, 아니면 전체 출력
+        filterOn ? tasks.filter { $0.isImportant } : tasks
+    }
+    
+    // MARK: - Sort와 Filter 기능을 같이 사용하기
+        // .forward == ascending(오름차순), .reverse == descending(내림차순)
+    @State private var sortOrder: SortOrder = .forward
+    
+    private var sortedAndFilteredTodos: [TodoModel] {
+        let sortedTodos = tasks.sorted { sortOrder == .forward ? $0.taskName < $1.taskName : $0.taskName > $1.taskName }
+        return filterOn ? sortedTodos.filter { $0.isImportant } : sortedTodos
     }
     
     // MARK: - Body
@@ -37,7 +53,7 @@ struct TodoMainView: View {
                     )
                 } else {
                     List {
-                        ForEach(sortedTodos) { task in
+                        ForEach(sortedAndFilteredTodos) { task in
                             NavigationLink {
                                 //destination
                                 AddUpdateTaskView(task: task)
@@ -78,19 +94,34 @@ struct TodoMainView: View {
             } //:VSTACK
             .toolbar {
                 // Trailing Icons
+                
                 // MARK: - Sort Button
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
                         //action
-                        orderAscending.toggle()
+                        sortOrder = (sortOrder == .forward) ? .reverse : .forward
                     } label: {
                         Image(systemName: "arrow.up.arrow.down.circle")
                             .font(.title2)
                             .foregroundStyle(.green)
-                            .symbolVariant(orderAscending ? .fill : .none)
+                            .symbolVariant(sortOrder == .forward ? .fill : .none)
                     }
 
                 }
+                
+                // MARK: - Filter Button
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        //action
+                        filterOn.toggle()
+                    } label: {
+                        Image(systemName: "exclamationmark.triangle")
+                            .font(.title2)
+                            .symbolVariant(filterOn ? .fill : .none)
+                    }
+                    .tint(.red)
+                }
+                
                 // MARK: - Add Button
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
